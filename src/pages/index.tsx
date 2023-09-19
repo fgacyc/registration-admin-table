@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 
 import {
   Table,
@@ -52,7 +52,7 @@ export default function App() {
   ];
 
   const filteredItems = React.useMemo(() => {
-    if (status !== "success") return;
+    if (status !== "success") return [];
     let filteredUsers = [...data];
 
     if (hasSearchFilter) {
