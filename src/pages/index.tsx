@@ -347,7 +347,7 @@ export default function App() {
               wrapper: "max-h-[80vh] text-white",
             }}
             selectedKeys={selectedKeys}
-            selectionMode="multiple"
+            selectionMode="none"
             sortDescriptor={sortDescriptor}
             topContent={topContent}
             topContentPlacement="outside"
