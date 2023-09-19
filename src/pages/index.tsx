@@ -16,6 +16,7 @@ import {
   Link,
   type Selection,
   type SortDescriptor,
+  Chip,
 } from "@nextui-org/react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import { collection } from "firebase/firestore";
@@ -29,13 +30,20 @@ export default function App() {
     new Set([]),
   );
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "age",
-    direction: "ascending",
+    column: "service_location",
+    direction: "descending",
   });
 
   const firestore = useFirestore();
   const ref = collection(firestore, "registrations");
   const { status, data } = useFirestoreCollectionData(ref);
+
+  type FamilyMember = {
+    relationship: "Child" | "Spouse" | "Helper";
+    age: number;
+    name: string;
+    gender: "male" | "female";
+  };
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -45,10 +53,11 @@ export default function App() {
     { name: "EMAIL", key: "email" },
     { name: "CONTACT", key: "contact_no" },
     { name: "DOB", key: "date_of_birth" },
-    { name: "NRIC / PASSPORT", key: "nric_passport" },
     { name: "INVITED BY", key: "invited_by" },
     { name: "SATELLITE", key: "service_location" },
     { name: "PASTORAL TEAM", key: "pastoral_team" },
+    { name: "BED(S)", key: "beds" },
+    { name: "FAMILY MEMBERS", key: "fam" },
   ];
 
   const filteredItems = React.useMemo(() => {
@@ -96,6 +105,10 @@ export default function App() {
               {String(cellValue).replace("-", "")}
             </Link>
           );
+        case "invited_by":
+          return item.invited_by === "Ministry"
+            ? `${String(item.invited_by)} | ${String(item.ministry_team)}`
+            : cellValue;
         case "date_of_birth":
           return new Date(item.date_of_birth as string).toLocaleDateString(
             "en-US",
@@ -103,7 +116,48 @@ export default function App() {
               dateStyle: "long",
             },
           );
+        case "beds": {
+          const val =
+            1 +
+            Number(item.additional_bed === "false" ? 0 : item.additional_bed);
+          return (
+            <Chip
+              variant="flat"
+              size="sm"
+              color={val === 3 ? "danger" : val === 2 ? "warning" : "success"}
+            >
+              {val}
+            </Chip>
+          );
+        }
+        case "fam": {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-ignore
+          const val: FamilyMember[] = item.family_members;
 
+          return (
+            <div className="flex max-w-[150px] flex-row gap-3 overflow-x-scroll">
+              {val
+                .sort((a, b) => a.age - b.age)
+                .map((e, i) => (
+                  <Chip
+                    variant="dot"
+                    color={
+                      e.age < 3
+                        ? "primary"
+                        : e.age < 11
+                        ? "success"
+                        : "secondary"
+                    }
+                    size="sm"
+                    key={i}
+                  >
+                    {e.name}, {e.age}
+                  </Chip>
+                ))}
+            </div>
+          );
+        }
         case "actions":
           return (
             <div className="relative flex items-center justify-end gap-2">
@@ -198,7 +252,17 @@ export default function App() {
           >
             <TableHeader columns={columns}>
               {(column) => (
-                <TableColumn key={column.key} allowsSorting>
+                <TableColumn
+                  key={column.key}
+                  allowsSorting={
+                    column.key === "beds" ||
+                    column.key === "date_of_birth" ||
+                    column.key === "contact_no" ||
+                    column.key === "email"
+                      ? false
+                      : true
+                  }
+                >
                   {column.name}
                 </TableColumn>
               )}
