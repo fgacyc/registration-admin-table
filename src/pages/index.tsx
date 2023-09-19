@@ -1,4 +1,4 @@
-import React, { type ReactNode } from "react";
+import { useState, type ReactNode, useMemo, useCallback } from "react";
 
 import {
   Table,
@@ -17,6 +17,12 @@ import {
   type Selection,
   type SortDescriptor,
   Chip,
+  Modal,
+  useDisclosure,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@nextui-org/react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import { collection } from "firebase/firestore";
@@ -25,18 +31,27 @@ import { SearchIcon } from "@/graphics/SearchIcon";
 import Head from "next/head";
 
 export default function App() {
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
-    new Set([]),
-  );
-  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "service_location",
     direction: "descending",
+  });
+
+  const [selectedFam, setSelectedFam] = useState<
+    FamilyMember & { from: string }
+  >({
+    age: 0,
+    gender: "male",
+    name: "",
+    relationship: "Spouse",
+    from: "",
   });
 
   const firestore = useFirestore();
   const ref = collection(firestore, "registrations");
   const { status, data } = useFirestoreCollectionData(ref);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   type FamilyMember = {
     relationship: "Child" | "Spouse" | "Helper";
@@ -60,7 +75,7 @@ export default function App() {
     { name: "FAMILY MEMBERS", key: "fam" },
   ];
 
-  const filteredItems = React.useMemo(() => {
+  const filteredItems = useMemo(() => {
     if (status !== "success") return [];
     let filteredUsers = [...data];
 
@@ -79,7 +94,7 @@ export default function App() {
     return filteredUsers;
   }, [data, filterValue, hasSearchFilter, status]);
 
-  const sortedItems = React.useMemo(() => {
+  const sortedItems = useMemo(() => {
     if (status !== "success") return;
     return [...filteredItems].sort((a, b) => {
       const first = a[sortDescriptor.column as string] as number;
@@ -90,7 +105,7 @@ export default function App() {
     });
   }, [sortDescriptor, filteredItems, status]);
 
-  const renderCell = React.useCallback(
+  const renderCell = useCallback(
     (item: Record<string, unknown>, columnKey: React.Key) => {
       const cellValue = item[columnKey as string];
 
@@ -151,6 +166,16 @@ export default function App() {
                     }
                     size="sm"
                     key={i}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      onOpen();
+                      setSelectedFam({
+                        ...e,
+                        from:
+                          String(item.nickname) ||
+                          String(item["full_name_as_per_IC_(en)"]),
+                      });
+                    }}
                   >
                     {e.name}, {e.age}
                   </Chip>
@@ -179,10 +204,10 @@ export default function App() {
           return cellValue;
       }
     },
-    [],
+    [onOpen],
   );
 
-  const onSearchChange = React.useCallback((value?: string) => {
+  const onSearchChange = useCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
     } else {
@@ -190,11 +215,11 @@ export default function App() {
     }
   }, []);
 
-  const onClear = React.useCallback(() => {
+  const onClear = useCallback(() => {
     setFilterValue("");
   }, []);
 
-  const topContent = React.useMemo(() => {
+  const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-end justify-between gap-3">
@@ -212,7 +237,7 @@ export default function App() {
     );
   }, [filterValue, onSearchChange, onClear]);
 
-  const bottomContent = React.useMemo(() => {
+  const bottomContent = useMemo(() => {
     if (status !== "success") return;
     return (
       <div className="flex items-center justify-between px-2 py-2">
@@ -232,6 +257,82 @@ export default function App() {
         <meta name="description" content="Admin Panel" />
         <link rel="icon" href="/fga.png" />
       </Head>
+      <Modal
+        className={`text-white dark`}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        backdrop="blur"
+        hideCloseButton
+        motionProps={{
+          variants: {
+            enter: {
+              y: 0,
+              opacity: 1,
+              transition: {
+                duration: 0.3,
+                ease: "easeOut",
+              },
+            },
+            exit: {
+              y: -20,
+              opacity: 0,
+              transition: {
+                duration: 0.2,
+                ease: "easeIn",
+              },
+            },
+          },
+        }}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                {selectedFam.from} / {selectedFam.name}
+              </ModalHeader>
+              <ModalBody className="flex flex-col gap-3">
+                <Input
+                  isReadOnly
+                  label="Relationship"
+                  value={selectedFam.relationship}
+                  variant="faded"
+                />
+                <Input
+                  isReadOnly
+                  label="Age"
+                  value={String(selectedFam.age)}
+                  variant="faded"
+                />
+                <Input
+                  isReadOnly
+                  label="Gender"
+                  value={selectedFam.gender}
+                  variant="faded"
+                  style={{ textTransform: "capitalize" }}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="primary"
+                  variant="flat"
+                  onPress={() => {
+                    onClose();
+                    setSelectedFam({
+                      age: 0,
+                      gender: "male",
+                      name: "",
+                      relationship: "Spouse",
+                      from: "",
+                    });
+                  }}
+                >
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] px-4 dark">
         {status === "success" ? (
           <Table
