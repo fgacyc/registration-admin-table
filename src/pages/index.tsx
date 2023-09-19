@@ -4,6 +4,7 @@ import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import { collection } from "firebase/firestore";
 import {
   Link,
+  type SortDescriptor,
   Table,
   TableBody,
   TableCell,
@@ -11,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const firestore = useFirestore();
@@ -28,7 +30,13 @@ export default function Home() {
     "PASTORAL TEAM",
   ];
 
-  console.log(data);
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "SATELLITE",
+    direction: "ascending",
+  });
+
+  useEffect(() => console.log(sortDescriptor), [sortDescriptor]);
+
   return (
     <>
       <Head>
@@ -37,13 +45,17 @@ export default function Home() {
         <link rel="icon" href="/fga.png" />
       </Head>
 
-      <main className="flex min-h-screen flex-col bg-gradient-to-b from-[#2e026d] to-[#15162c] px-4 py-16 dark">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] px-4 dark">
         {status === "success" ? (
           <Table
             isCompact
-            className="text-white"
+            className="max-h-[90vh] text-white"
             aria-label="Table"
             selectionMode="multiple"
+            sortDescriptor={sortDescriptor}
+            onSortChange={setSortDescriptor}
+            topContentPlacement="outside"
+            isHeaderSticky
           >
             <TableHeader>
               {columns.map((c) => (
