@@ -258,7 +258,8 @@ export default function App() {
                     column.key === "beds" ||
                     column.key === "date_of_birth" ||
                     column.key === "contact_no" ||
-                    column.key === "email"
+                    column.key === "email" ||
+                    column.key === "fam"
                       ? false
                       : true
                   }
