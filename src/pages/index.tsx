@@ -87,6 +87,9 @@ export default function App() {
             .includes(filterValue.toLowerCase()) ||
           String(user["full_name_(chi)"])
             .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          String(user.nickname)
+            .toLowerCase()
             .includes(filterValue.toLowerCase()),
       );
     }
