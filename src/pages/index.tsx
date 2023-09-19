@@ -205,6 +205,7 @@ export default function App() {
             </TableHeader>
             <TableBody emptyContent={"No users found"} items={sortedItems}>
               {(item) => (
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 <TableRow key={item.user_id}>
                   {(columnKey) => (
                     <TableCell>
