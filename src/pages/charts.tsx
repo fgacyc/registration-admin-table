@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { countOccurrences, createData } from "@/utils/helpers";
 import {
   Chart as ChartJS,
@@ -10,7 +8,6 @@ import {
   Tooltip,
   Legend,
   ArcElement,
-  TooltipItem,
 } from "chart.js";
 import { collection } from "firebase/firestore";
 import { type NextPage } from "next";
@@ -41,7 +38,7 @@ const ChartsPage: NextPage = () => {
     const width = window.innerWidth;
     // console.log(width);
     width > 768 ? setIsPC(true) : setIsPC(false);
-  }, [window.innerWidth]);
+  }, []);
 
   return (
     <>
@@ -58,7 +55,7 @@ const ChartsPage: NextPage = () => {
                 <Bar
                   options={{
                     aspectRatio: !isPC ? 0.75 : undefined,
-                    // responsive: true,
+                    responsive: true,
                     layout: {
                       autoPadding: false,
                     },
