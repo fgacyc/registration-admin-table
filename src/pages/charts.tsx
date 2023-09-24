@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { countOccurrences, createData } from "@/utils/helpers";
 import {
   Chart as ChartJS,
@@ -8,6 +10,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  TooltipItem,
 } from "chart.js";
 import { collection } from "firebase/firestore";
 import { type NextPage } from "next";
@@ -15,6 +18,7 @@ import { Bar, Pie } from "react-chartjs-2";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import autocolors from "chartjs-plugin-autocolors";
 import Head from "next/head";
+import { useLayoutEffect, useState } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -31,8 +35,13 @@ const ChartsPage: NextPage = () => {
   const firestore = useFirestore();
   const ref = collection(firestore, "registrations");
   const { status, data } = useFirestoreCollectionData(ref);
+  const [isPC, setIsPC] = useState(false);
 
-  status === "success" ? console.log(data[0]) : null;
+  useLayoutEffect(() => {
+    const width = window.innerWidth;
+    // console.log(width);
+    width > 768 ? setIsPC(true) : setIsPC(false);
+  }, [window.innerWidth]);
 
   return (
     <>
@@ -44,11 +53,23 @@ const ChartsPage: NextPage = () => {
       <main className="flex min-h-screen flex-col gap-5 bg-gradient-to-b from-[#2e026d] to-[#15162c] px-4 py-5 dark">
         {status === "success" ? (
           <>
-            <div className="flex flex-row gap-4">
-              <div className="h-1/2 w-1/2 rounded-lg bg-white p-3">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="h-1/2 w-full rounded-lg bg-white p-3 md:w-1/2">
                 <Bar
                   options={{
-                    responsive: true,
+                    aspectRatio: !isPC ? 0.75 : undefined,
+                    // responsive: true,
+                    layout: {
+                      autoPadding: false,
+                    },
+                    scales: {
+                      x: {
+                        ticks: {
+                          display: isPC,
+                        },
+                      },
+                    },
+
                     plugins: {
                       legend: { display: false, position: "top" as const },
                       autocolors: {
@@ -59,6 +80,25 @@ const ChartsPage: NextPage = () => {
                         display: true,
                         text: "SERVICE LOCATION",
                       },
+                      // tooltips: {
+                      //   enabled: true,
+                      //   mode: "label",
+                      //   callbacks: {
+                      //     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      //     // @ts-ignore
+                      //     title: function (tooltipItems, data) {
+                      //       const idx = tooltipItems[0].index;
+                      //       return "Title:" + data.labels[idx]; //do something with title
+                      //     },
+                      //     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      //     // @ts-ignore
+                      //     label: function (tooltipItems) {
+                      //       //var idx = tooltipItems.index;
+                      //       //return data.labels[idx] + ' €';
+                      //       return tooltipItems.xLabel + " €";
+                      //     },
+                      //   },
+                      // },
                     },
                   }}
                   data={createData(
@@ -70,7 +110,7 @@ const ChartsPage: NextPage = () => {
                   )}
                 />
               </div>
-              <div className="h-1/2 w-1/2  rounded-lg bg-white p-3">
+              <div className="h-1/2 w-full rounded-lg  bg-white p-3 md:w-1/2">
                 <Bar
                   options={{
                     responsive: true,
@@ -92,8 +132,8 @@ const ChartsPage: NextPage = () => {
                 />
               </div>
             </div>
-            <div className="flex flex-row gap-4">
-              <div className="h-1/2 w-1/2 rounded-lg bg-white p-3">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="h-1/2 w-full rounded-lg bg-white p-3 md:w-1/2">
                 <Bar
                   options={{
                     responsive: true,
