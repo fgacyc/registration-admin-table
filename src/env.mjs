@@ -8,6 +8,8 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
+    MAILJET_API_PUBLIC_KEY: z.string(),
+    MAILJET_API_SECRET_KEY: z.string(),
   },
 
   /**
@@ -38,7 +40,8 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
     NEXT_PUBLIC_PROJECT_ID: process.env.NEXT_PUBLIC_PROJECT_ID,
     NEXT_PUBLIC_STORAGE_BUCKET: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-
+    MAILJET_API_PUBLIC_KEY: process.env.MAILJET_API_PUBLIC_KEY,
+    MAILJET_API_SECRET_KEY: process.env.MAILJET_API_SECRET_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
