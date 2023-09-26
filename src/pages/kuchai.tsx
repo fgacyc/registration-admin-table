@@ -30,7 +30,7 @@ import { VerticalDotsIcon } from "@/graphics/VerticalDotsIcon";
 import { SearchIcon } from "@/graphics/SearchIcon";
 import Head from "next/head";
 
-export default function App() {
+const KuchaiPage = () => {
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -78,7 +78,10 @@ export default function App() {
 
   const filteredItems = useMemo(() => {
     if (status !== "success") return [];
-    let filteredUsers = [...data];
+    let filteredUsers = [...data].filter(
+      (a) =>
+        a.service_location === "Kuchai" && a.pastoral_team === "Young Warrior",
+    );
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
@@ -100,13 +103,16 @@ export default function App() {
 
   const sortedItems = useMemo(() => {
     if (status !== "success") return;
-    return [...filteredItems].sort((a, b) => {
+    const filter = [...filteredItems].sort((a, b) => {
       const first = a[sortDescriptor.column as string] as number;
       const second = b[sortDescriptor.column as string] as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
+
+    return filter;
+    //   .find((a) => a.satellite === "Kuchai");
   }, [sortDescriptor, filteredItems, status]);
 
   const renderCell = useCallback(
@@ -392,4 +398,6 @@ export default function App() {
       </main>
     </>
   );
-}
+};
+
+export default KuchaiPage;
