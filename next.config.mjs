@@ -8,9 +8,6 @@ await import("./src/env.mjs");
 const config = {
   reactStrictMode: true,
 
-  experimental: {
-    esmExternals: "loose",
-  },
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
    *
