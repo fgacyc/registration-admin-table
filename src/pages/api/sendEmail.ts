@@ -1,6 +1,7 @@
+import { env } from "@/env.mjs";
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import mailjet from "node-mailjet";
-import { env } from "@/env.mjs";
 
 const enableCORS =
   (handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) =>
@@ -24,6 +25,7 @@ const enableCORS =
 
     return await handler(req, res);
   };
+
 const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
   const { to, recipientName } = req.body as {
     to: string;
