@@ -2,6 +2,28 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import mailjet from "node-mailjet";
 import { env } from "@/env.mjs";
 
+const enableCORS =
+  (handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) =>
+  async (req: NextApiRequest, res: NextApiResponse) => {
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Origin", "*"); // Replace this with your actual origin
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, DELETE, PATCH, POST, PUT",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+    );
+
+    // Specific logic for the preflight request
+    if (req.method === "OPTIONS") {
+      res.status(200).end();
+      return;
+    }
+
+    return await handler(req, res);
+  };
 const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
   const { to, recipientName } = req.body as {
     to: string;
@@ -52,4 +74,4 @@ const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export default sendEmailAPI;
+module.exports = enableCORS(sendEmailAPI);
