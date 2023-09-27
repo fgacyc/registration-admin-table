@@ -16,10 +16,7 @@ export function middleware() {
     "Access-Control-Allow-Methods",
     "GET, POST, PATCH, PUT, DELETE, OPTIONS",
   );
-  res.headers.append(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-  );
+  res.headers.append("Access-Control-Allow-Headers", "*");
 
   return res;
 }
