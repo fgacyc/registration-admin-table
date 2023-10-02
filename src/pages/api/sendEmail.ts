@@ -72,7 +72,7 @@ const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
       const result = await sendEmail();
       console.log(result);
       res
-        .status(result.response.status as number)
+        .status(Number(result.response.status))
         .json({ message: result.response.statusText });
     } catch (error) {
       console.error("Error sending email:", error);
