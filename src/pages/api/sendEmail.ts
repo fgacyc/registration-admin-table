@@ -33,6 +33,8 @@ const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
       recipientName: string;
     };
 
+    console.log(to, req);
+
     const mailjetClient = mailjet.apiConnect(
       String(process.env.MAILJET_API_PUBLIC_KEY),
       String(process.env.MAILJET_API_SECRET_KEY),
@@ -73,7 +75,7 @@ const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
         .status(Number(result.response.status))
         .json({ message: result.response.statusText });
     } catch (error) {
-      console.error("Error sending email:", error);
+      // console.error("Error sending email:", error);
       res.status(500).json({
         message: "Internal Server Error",
       });
