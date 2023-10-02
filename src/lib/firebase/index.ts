@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/env.mjs";
 
 export const firebaseConfig = {
   apiKey: env.NEXT_PUBLIC_API_KEY,
