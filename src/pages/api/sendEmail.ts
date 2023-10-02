@@ -3,8 +3,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { env } from "@/env.mjs";
-
 import type { NextApiRequest, NextApiResponse } from "next";
 import mailjet from "node-mailjet";
 
@@ -36,8 +34,8 @@ const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
     };
 
     const mailjetClient = mailjet.apiConnect(
-      env.MAILJET_API_PUBLIC_KEY,
-      env.MAILJET_API_SECRET_KEY,
+      String(process.env.MAILJET_API_PUBLIC_KEY),
+      String(process.env.MAILJET_API_SECRET_KEY),
     );
 
     const sendEmail = async () => {
