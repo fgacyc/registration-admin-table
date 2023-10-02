@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import { env } from "@/env.mjs";
 
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -67,7 +72,7 @@ const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
       const result = await sendEmail();
       console.log(result);
       res
-        .status(result.response.status)
+        .status(result.response.status as number)
         .json({ message: result.response.statusText });
     } catch (error) {
       console.error("Error sending email:", error);
