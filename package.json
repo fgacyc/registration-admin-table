@@ -19,6 +19,7 @@
     "node-mailjet": "^6.0.4",
     "react": "18.2.0",
     "react-chartjs-2": "^5.2.0",
+    "react-csv-downloader": "^2.9.1",
     "react-dom": "18.2.0",
     "reactfire": "^4.2.3",
     "zod": "^3.21.4"

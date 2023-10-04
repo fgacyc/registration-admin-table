@@ -29,6 +29,7 @@ import { collection } from "firebase/firestore";
 import { VerticalDotsIcon } from "@/graphics/VerticalDotsIcon";
 import { SearchIcon } from "@/graphics/SearchIcon";
 import Head from "next/head";
+import CsvDownload from "react-csv-downloader";
 
 export default function App() {
   const [filterValue, setFilterValue] = useState("");
@@ -246,13 +247,18 @@ export default function App() {
     return (
       <div className="flex items-center justify-between px-2 py-2">
         <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems?.length} selected`}
+          Total: {filteredItems.length}
         </span>
+        {/* <CsvDownload
+          className="text-red-500"
+          datas={data}
+          text="Download CSV"
+          filename="registrations"
+          extension=".csv"
+        /> */}
       </div>
     );
-  }, [selectedKeys, filteredItems, status]);
+  }, [filteredItems, status]);
 
   return (
     <>
