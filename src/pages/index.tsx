@@ -29,7 +29,6 @@ import { collection } from "firebase/firestore";
 import { VerticalDotsIcon } from "@/graphics/VerticalDotsIcon";
 import { SearchIcon } from "@/graphics/SearchIcon";
 import Head from "next/head";
-import CsvDownload from "react-csv-downloader";
 
 export default function App() {
   const [filterValue, setFilterValue] = useState("");
@@ -249,13 +248,6 @@ export default function App() {
         <span className="w-[30%] text-small text-default-400">
           Total: {filteredItems.length}
         </span>
-        {/* <CsvDownload
-          className="text-red-500"
-          datas={data}
-          text="Download CSV"
-          filename="registrations"
-          extension=".csv"
-        /> */}
       </div>
     );
   }, [filteredItems, status]);
