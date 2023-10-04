@@ -29,6 +29,7 @@ import { collection } from "firebase/firestore";
 import { VerticalDotsIcon } from "@/graphics/VerticalDotsIcon";
 import { SearchIcon } from "@/graphics/SearchIcon";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 export default function App() {
   const [filterValue, setFilterValue] = useState("");
@@ -47,6 +48,8 @@ export default function App() {
     relationship: "Spouse",
     from: "",
   });
+
+  const router = useRouter();
 
   const firestore = useFirestore();
   const ref = collection(firestore, "registrations");
@@ -236,10 +239,20 @@ export default function App() {
             onClear={() => onClear()}
             onValueChange={onSearchChange}
           />
+          <Button
+            color="secondary"
+            variant="flat"
+            className="text-white brightness-200"
+            onPress={() => {
+              void router.push("/charts");
+            }}
+          >
+            Charts
+          </Button>
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, onClear]);
+  }, [filterValue, onSearchChange, onClear, router]);
 
   const bottomContent = useMemo(() => {
     if (status !== "success") return;
