@@ -58,7 +58,7 @@ const sendEmailAPI = async (req: NextApiRequest, res: NextApiResponse) => {
               "Registration Confirmation for CYC Leaders Retreat on 28-29 October 2023",
             HTMLPart: `<h3>Dear ${String(
               recipientName,
-            )},</h3><p>We are delighted to confirm your registration for the upcoming CYC Leaders Retreat - <strong>'CHOSEN 300'</strong>.</p><p>Your commitment to attending this event is greatly appreciated, and we are excited to have you join us.</p><br/><br/><br/><h2>Event Details:</h2><br/><ul><li>Event Name: FGACYC Leaders Retreat 2023: 'Chosen 300'</li><li>Date: 28-29 October 2023</li><li>Location: Bayou Lagoon Park Resort, Melaka</li></ul><br/><br/><br/><p>More information on accomodation arrangement, payment, etc. will be updated via WhatsApp.</p><br/><br/><p>We cannot wait to gather together with you in this retreat! See you soon!</p>`,
+            )},</h3><p>We are delighted to confirm your registration for the upcoming CYC Leaders Retreat - <strong>'CHOSEN 300'</strong>.</p><p>Your commitment to attending this event is greatly appreciated, and we are excited to have you join us.</p><br/><h2>Event Details:</h2><br/><ul><li>Event Name: FGACYC Leaders Retreat 2023: 'Chosen 300'</li><li>Date: 28-29 October 2023</li><li>Location: Bayou Lagoon Park Resort, Melaka</li></ul><br/><br/><br/><p>More information on accomodation arrangement, payment, etc. will be updated via WhatsApp.</p><p>We cannot wait to gather together with you in this retreat! See you soon!</p>`,
           },
         ],
       };
