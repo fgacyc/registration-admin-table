@@ -31,6 +31,9 @@ import { SearchIcon } from "@/graphics/SearchIcon";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
+import CSVDownload from "react-csv-downloader";
+import { transformDataToCSV } from "@/utils/helpers";
+
 export default function App() {
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
@@ -261,9 +264,18 @@ export default function App() {
         <span className="w-[30%] text-small text-default-400">
           Total: {filteredItems.length}
         </span>
+        <CSVDownload
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-ignore
+          datas={transformDataToCSV(data)}
+          filename="registrations"
+          extension=".csv"
+          text="Download CSV"
+          className="group relative z-0 box-border inline-flex h-unit-10 min-w-unit-20 select-none appearance-none items-center justify-center gap-unit-2 overflow-hidden whitespace-nowrap rounded-medium bg-danger/20 px-unit-4 text-small font-normal text-danger subpixel-antialiased outline-none brightness-200 tap-highlight-transparent transition-transform-colors data-[focus-visible=true]:z-10 data-[pressed=true]:scale-[0.97] data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-offset-2 data-[focus-visible=true]:outline-focus motion-reduce:transition-none dark:text-danger-500 [&>svg]:max-w-[theme(spacing.unit-8)]"
+        />
       </div>
     );
-  }, [filteredItems, status]);
+  }, [filteredItems, status, data]);
 
   return (
     <>
