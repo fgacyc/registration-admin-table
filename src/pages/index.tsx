@@ -33,6 +33,8 @@ import { useRouter } from "next/router";
 
 import CSVDownload from "react-csv-downloader";
 import { transformDataToCSV } from "@/utils/helpers";
+import { BsPencil } from "react-icons/bs";
+import { InfoModal } from "@/components/InfoModal";
 
 export default function App() {
   const [filterValue, setFilterValue] = useState("");
@@ -52,13 +54,24 @@ export default function App() {
     from: "",
   });
 
+  const [selectedEntry, setSelectedEntry] = useState("");
+
   const router = useRouter();
 
   const firestore = useFirestore();
   const ref = collection(firestore, "registrations");
   const { status, data } = useFirestoreCollectionData(ref);
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure({
+    id: "fam_member",
+  });
+  const {
+    isOpen: entryIsOpen,
+    onOpen: entryOnOpen,
+    onOpenChange: entryOnOpenChange,
+  } = useDisclosure({
+    id: "entry",
+  });
 
   type FamilyMember = {
     relationship: "Child" | "Spouse" | "Helper";
@@ -80,6 +93,7 @@ export default function App() {
     { name: "PASTORAL TEAM", key: "pastoral_team" },
     { name: "BED(S)", key: "beds" },
     { name: "FAMILY MEMBERS", key: "fam" },
+    { name: "EDIT", key: "act" },
   ];
 
   const filteredItems = useMemo(() => {
@@ -155,6 +169,20 @@ export default function App() {
             </Chip>
           );
         }
+        case "act": {
+          return (
+            <Button
+              color="secondary"
+              variant="flat"
+              onPress={() => {
+                entryOnOpen();
+                setSelectedEntry(String(item.user_id));
+              }}
+            >
+              <BsPencil />
+            </Button>
+          );
+        }
         case "fam": {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore
@@ -214,7 +242,7 @@ export default function App() {
           return cellValue;
       }
     },
-    [onOpen],
+    [entryOnOpen, onOpen],
   );
 
   const onSearchChange = useCallback((value?: string) => {
@@ -360,6 +388,15 @@ export default function App() {
           )}
         </ModalContent>
       </Modal>
+
+      {entryIsOpen && selectedEntry !== "" && (
+        <InfoModal
+          entryIsOpen={entryIsOpen}
+          entryOnOpenChange={entryOnOpenChange}
+          selectedEntry={selectedEntry}
+          setSelectedEntry={setSelectedEntry}
+        />
+      )}
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] px-4 dark">
         {status === "success" ? (
           <Table
@@ -387,6 +424,7 @@ export default function App() {
                     column.key === "date_of_birth" ||
                     column.key === "contact_no" ||
                     column.key === "email" ||
+                    column.key === "act" ||
                     column.key === "fam"
                       ? false
                       : true
@@ -410,7 +448,7 @@ export default function App() {
             </TableBody>
           </Table>
         ) : (
-          <div>Loading</div>
+          <div className="text-white">Loading</div>
         )}
       </main>
     </>
