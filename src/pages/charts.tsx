@@ -170,7 +170,9 @@ const ChartsPage: NextPage = () => {
                     },
                   }}
                   data={createData(
-                    countOccurrences(data.map((a) => String(a.gender))),
+                    countOccurrences(
+                      data.map((a) => String(a.gender).toLocaleUpperCase()),
+                    ),
                   )}
                 />
               </div>
