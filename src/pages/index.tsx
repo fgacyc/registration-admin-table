@@ -35,6 +35,7 @@ import CSVDownload from "react-csv-downloader";
 import { transformDataToCSV } from "@/utils/helpers";
 import { BsPencil } from "react-icons/bs";
 import { InfoModal } from "@/components/InfoModal";
+import type { FamilyMember } from "@/@types";
 
 export default function App() {
   const [filterValue, setFilterValue] = useState("");
@@ -72,13 +73,6 @@ export default function App() {
   } = useDisclosure({
     id: "entry",
   });
-
-  type FamilyMember = {
-    relationship: "Child" | "Spouse" | "Helper";
-    age: number;
-    name: string;
-    gender: "male" | "female";
-  };
 
   const hasSearchFilter = Boolean(filterValue);
 

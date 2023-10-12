@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
@@ -27,15 +30,12 @@ import {
   useRef,
   useEffect,
 } from "react";
-import {
-  useFirestore,
-  useFirestoreDocData,
-  useFirestoreDocDataOnce,
-} from "reactfire";
+import { useFirestore, useFirestoreDocData } from "reactfire";
 
 import { IoIosWarning } from "react-icons/io";
 import { BsFillTrashFill } from "react-icons/bs";
 import { addAutoIncrementedId } from "@/utils/helpers";
+import type { FamilyMember } from "@/@types";
 
 type InfoModalProps = {
   entryIsOpen: boolean;
@@ -60,19 +60,12 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
   const { status, data } = useFirestoreDocData(ref);
   // const { status: famStatus, data: famData } = useFirestoreDocDataOnce(ref);
 
-  const [famState, setFamState] = useState<
-    {
-      name: string;
-      age: number;
-      relationship: string;
-      gender: string;
-      id: number;
-    }[]
-  >([]);
+  const [famState, setFamState] = useState<FamilyMember[]>([]);
 
   useEffect(() => {
     if (status !== "success") return;
     setFamState(
+      //@ts-ignore
       addAutoIncrementedId(data.family_members.sort((a, b) => a.age - b.age)),
     );
   }, [data, status]);
@@ -90,6 +83,7 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
   return (
     status === "success" && (
       <>
+        {console.log(data)}
         <Modal
           className="z-[100] text-white dark"
           isOpen={isOpen}
@@ -288,7 +282,7 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
                             <p>Family Members</p>
                             <div className="mt-2 flex w-full flex-col gap-2">
                               {addAutoIncrementedId(
-                                data.family_members.sort(
+                                (data.family_members as FamilyMember[]).sort(
                                   (a, b) => a.age - b.age,
                                 ),
                               ).map((fm, i) => (
@@ -459,16 +453,7 @@ const FamilyMemberField = ({
   value: string;
   label: string;
   editable: boolean;
-  setFamState: Dispatch<
-    SetStateAction<
-      {
-        name: string;
-        age: number;
-        relationship: string;
-        gender: string;
-      }[]
-    >
-  >;
+  setFamState: Dispatch<SetStateAction<FamilyMember[]>>;
 }) => {
   const updateField = (
     id: number,
