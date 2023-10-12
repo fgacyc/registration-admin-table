@@ -1,4 +1,7 @@
-import { countOccurrences, createData } from "@/utils/helpers";
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { countAgeGroups, countOccurrences, createData } from "@/utils/helpers";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,6 +19,8 @@ import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import autocolors from "chartjs-plugin-autocolors";
 import Head from "next/head";
 import { useLayoutEffect, useState } from "react";
+import type { FamilyMember } from "@/@types";
+import { Chip } from "@nextui-org/react";
 
 ChartJS.register(
   CategoryScale,
@@ -153,7 +158,48 @@ const ChartsPage: NextPage = () => {
                   )}
                 />
               </div>
-              <div className="h-1/2 rounded-lg bg-white p-3">
+              <div className="flex h-1/2  flex-col gap-4 md:flex-row">
+                <div className="h-1/2 rounded-lg bg-white p-3">
+                  <Pie
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: { display: false, position: "top" as const },
+                        autocolors: {
+                          mode: "data",
+                        },
+                        title: {
+                          color: "#b12aff",
+                          display: true,
+                          text: "GENDER",
+                        },
+                      },
+                    }}
+                    data={createData(
+                      countOccurrences(
+                        data.map((a) => String(a.gender).toLocaleUpperCase()),
+                      ),
+                    )}
+                  />
+                </div>
+                {/* {console.log(
+                data
+                  .map((dt) =>
+                    dt.family_members
+                      .map((fm) =>
+                        fm.age < 11 && fm.age > 6
+                          ? `${fm.name}-${fm.age}`
+                          : undefined,
+                      )
+                      .flat(),
+                  )
+                  .flat()
+                  .filter((val) => val !== undefined),
+              )} */}
+              </div>
+            </div>
+            <div className="flex w-full flex-col rounded-medium bg-default-100 text-white md:flex-row">
+              <div className="h-1/2 w-full rounded-lg bg-white p-3 md:w-1/2">
                 <Pie
                   options={{
                     responsive: true,
@@ -165,16 +211,58 @@ const ChartsPage: NextPage = () => {
                       title: {
                         color: "#b12aff",
                         display: true,
-                        text: "GENDER",
+                        text: "KIDS",
                       },
                     },
                   }}
-                  data={createData(
-                    countOccurrences(
-                      data.map((a) => String(a.gender).toLocaleUpperCase()),
-                    ),
-                  )}
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  //@ts-ignore
+                  data={createData(countAgeGroups(data))}
                 />
+              </div>
+              <div className="grid grid-flow-row grid-cols-1 gap-1 overflow-y-scroll p-2 md:grid-cols-2">
+                {data
+                  .map((dt) =>
+                    dt.family_members
+                      .map((fm: FamilyMember) =>
+                        fm.name
+                          ? `${
+                              dt.nickname ?? dt["full_name_as_per_IC_(en)"]
+                            } // ${fm.name.trim()} - ${fm.age} Years Old`
+                          : undefined,
+                      )
+                      .flat(),
+                  )
+                  .flat()
+                  .filter(
+                    (val) =>
+                      val !== undefined &&
+                      Number(val.split("-")[1]?.slice(0, -10).trim()) < 13,
+                  )
+                  .sort(
+                    (a, b) =>
+                      a.split("-")[1]?.slice(0, -10).trim() -
+                      b.split("-")[1]?.slice(0, -10).trim(),
+                  )
+                  .map((en: string) => {
+                    const age = Number(en.split("-")[1]?.slice(0, -10).trim());
+                    return (
+                      <Chip
+                        key={en}
+                        variant="dot"
+                        size="sm"
+                        color={
+                          age < 3
+                            ? "primary"
+                            : age < 11
+                            ? "success"
+                            : "secondary"
+                        }
+                      >
+                        {en}
+                      </Chip>
+                    );
+                  })}
               </div>
             </div>
           </>

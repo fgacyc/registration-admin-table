@@ -1,3 +1,5 @@
+import type { Entry } from "@/@types";
+
 export const countOccurrences = (data: string[]): Record<string, number> => {
   const counts: Record<string, number> = {};
 
@@ -101,4 +103,28 @@ export const addAutoIncrementedId = (
     id: id++,
     ...item,
   }));
+};
+
+export const countAgeGroups = (data: Entry[]) => {
+  const ageGroups: Record<string, number> = {
+    "0-3 Years Old": 0,
+    "4-6 Years Old": 0,
+    "7-10 Years Old": 0,
+    "11-12 Years Old": 0,
+  };
+
+  data.forEach((familyData) => {
+    familyData.family_members?.forEach((member) => {
+      const age = member.age;
+      for (const range in ageGroups) {
+        const [min, max] = range.slice(0, -10).split("-").map(Number);
+        if (age >= min! && age <= max!) {
+          ageGroups[range]++;
+          break; // Age can belong to only one group
+        }
+      }
+    });
+  });
+
+  return ageGroups;
 };
