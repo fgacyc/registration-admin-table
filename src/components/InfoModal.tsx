@@ -25,8 +25,14 @@ import {
   type SetStateAction,
   type ChangeEvent,
   useRef,
+  useEffect,
 } from "react";
-import { useFirestore, useFirestoreDocData } from "reactfire";
+import {
+  useFirestore,
+  useFirestoreDocData,
+  useFirestoreDocDataOnce,
+  useFirestoreDocOnce,
+} from "reactfire";
 
 import { IoIosWarning } from "react-icons/io";
 
@@ -49,7 +55,18 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
 
   const firestore = useFirestore();
   const ref = doc(firestore, `registrations/${String(selectedEntry)}`);
+
   const { status, data } = useFirestoreDocData(ref);
+  const { status: famStatus, data: famData } = useFirestoreDocDataOnce(ref);
+
+  const [famState, setFamState] = useState<
+    { name: string; age: number; relationship: string; gender: string }[]
+  >([]);
+
+  useEffect(() => {
+    if (famStatus !== "success") return;
+    setFamState(famData.family_members);
+  }, [famData, famStatus]);
 
   const update = (data: Record<string, string>) => {
     void updateDoc(ref, data);
@@ -62,6 +79,7 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
   return (
     status === "success" && (
       <>
+        {console.log(data)}
         <Modal
           className="z-[100] text-white dark"
           isOpen={isOpen}
@@ -127,7 +145,7 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
           </ModalContent>
         </Modal>
         <Modal
-          className={`text-white dark`}
+          className={`max-h-[80vh] overflow-y-scroll text-white dark`}
           isOpen={entryIsOpen}
           onOpenChange={entryOnOpenChange}
           backdrop="blur"
@@ -179,73 +197,127 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
                       ministry_team: data?.ministry_team,
                       additional_joining: data?.additional_joining,
                       additional_bed: data?.additional_bed,
-                      // family_members: info?.family_members,
+                      // family_members: data?.family_members,
                     }}
                     onSubmit={(values, actions) => {
                       actions.setSubmitting(true);
-                      console.warn(values);
-                      update(values);
+                      const valToPush = {
+                        family_members: famState,
+                        ...values,
+                      };
+                      console.warn(valToPush);
+                      // update(values);
                       actions.setSubmitting(false);
                     }}
                   >
                     {({ values, isSubmitting, setFieldValue }) => (
-                      <Form className="grid grid-cols-2 gap-2">
-                        <FormField
-                          name="full_name_as_per_IC_(en)"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="full_name_(chi)"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="nickname"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="gender"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="nric_passport"
-                          editable={editable || isSubmitting}
-                        />
-                        <DateField
-                          name="date_of_birth"
-                          editable={editable || isSubmitting}
-                          values={values}
-                          //@ts-ignore
-                          setFieldValue={setFieldValue}
-                        />
-                        <FormField
-                          name="contact_no"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="marital_status"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="service_location"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="pastoral_team"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="invited_by"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="ministry_team"
-                          editable={editable || isSubmitting}
-                        />
-                        <FormField
-                          name="additional_bed"
-                          editable={editable || isSubmitting}
-                        />
-                        {/* <FormField name="family_members" editable={editable} /> */}
+                      <Form className="flex flex-col gap-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            name="full_name_as_per_IC_(en)"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="full_name_(chi)"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="nickname"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="gender"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="nric_passport"
+                            editable={editable || isSubmitting}
+                          />
+                          <DateField
+                            name="date_of_birth"
+                            editable={editable || isSubmitting}
+                            values={values}
+                            //@ts-ignore
+                            setFieldValue={setFieldValue}
+                          />
+                          <FormField
+                            name="contact_no"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="marital_status"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="service_location"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="pastoral_team"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="invited_by"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="ministry_team"
+                            editable={editable || isSubmitting}
+                          />
+                          <FormField
+                            name="additional_bed"
+                            editable={editable || isSubmitting}
+                          />
+                          {/* <FormField name="family_members" editable={editable} /> */}
+                        </div>
+                        {famState.length > 0 && (
+                          <div className="flex flex-col items-center rounded-medium border-medium border-default-200 p-1">
+                            <p>Family Members</p>
+                            <div className="mt-2 flex w-full flex-col gap-2">
+                              {famState
+                                .sort((a, b) => a.age - b.age)
+                                .map((fm, i) => (
+                                  <div
+                                    key={fm.name}
+                                    className="flex w-full flex-row gap-1 rounded-medium border-medium border-default-400 p-1"
+                                  >
+                                    <FamilyMemberField
+                                      editable={editable || isSubmitting}
+                                      value={fm.name}
+                                      label="name"
+                                      key={`${fm.name}-${i}`}
+                                      setFamState={setFamState}
+                                      targetName={fm.name}
+                                    />
+                                    <FamilyMemberField
+                                      editable={editable || isSubmitting}
+                                      value={String(fm.age)}
+                                      label="age"
+                                      key={`${fm.age}-${i}`}
+                                      setFamState={setFamState}
+                                      targetName={fm.name}
+                                    />
+                                    <FamilyMemberField
+                                      editable={editable || isSubmitting}
+                                      value={fm.relationship}
+                                      label="relationship"
+                                      key={`${fm.relationship}-${i}`}
+                                      setFamState={setFamState}
+                                      targetName={fm.name}
+                                    />
+                                    <FamilyMemberField
+                                      editable={editable || isSubmitting}
+                                      value={fm.gender}
+                                      label="gender"
+                                      key={`${fm.gender}-${i}`}
+                                      setFamState={setFamState}
+                                      targetName={fm.name}
+                                    />
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
                       </Form>
                     )}
                   </Formik>
@@ -344,6 +416,59 @@ const DateField = ({
         .replaceAll("/", "-")}
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
         void setFieldValue("date_of_birth", e.currentTarget.valueAsNumber);
+      }}
+    />
+  );
+};
+
+const FamilyMemberField = ({
+  editable,
+  label,
+  value,
+  targetName,
+  setFamState,
+}: {
+  targetName: string;
+  value: string;
+  label: string;
+  editable: boolean;
+  setFamState: Dispatch<
+    SetStateAction<
+      {
+        name: string;
+        age: number;
+        relationship: string;
+        gender: string;
+      }[]
+    >
+  >;
+}) => {
+  const updateField = (
+    targetName: string,
+    fieldName: string,
+    newValue: string | number,
+  ) => {
+    setFamState((prevState) => {
+      const updatedData = prevState.map((member) => {
+        if (member.name === targetName) {
+          return { ...member, [fieldName]: newValue };
+        }
+        return member;
+      });
+      return updatedData;
+    });
+  };
+
+  return (
+    <Input
+      isDisabled={!editable}
+      defaultValue={value}
+      size="sm"
+      label={label.toUpperCase()}
+      variant="faded"
+      className={label === "gender" ? "w-52" : label === "age" ? "w-22" : ""}
+      onInput={(e) => {
+        updateField(value, label, e.currentTarget.value);
       }}
     />
   );
