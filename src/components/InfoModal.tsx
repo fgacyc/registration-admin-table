@@ -31,10 +31,11 @@ import {
   useFirestore,
   useFirestoreDocData,
   useFirestoreDocDataOnce,
-  useFirestoreDocOnce,
 } from "reactfire";
 
 import { IoIosWarning } from "react-icons/io";
+import { BsFillTrashFill } from "react-icons/bs";
+import { addAutoIncrementedId } from "@/utils/helpers";
 
 type InfoModalProps = {
   entryIsOpen: boolean;
@@ -57,18 +58,28 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
   const ref = doc(firestore, `registrations/${String(selectedEntry)}`);
 
   const { status, data } = useFirestoreDocData(ref);
-  const { status: famStatus, data: famData } = useFirestoreDocDataOnce(ref);
+  // const { status: famStatus, data: famData } = useFirestoreDocDataOnce(ref);
 
   const [famState, setFamState] = useState<
-    { name: string; age: number; relationship: string; gender: string }[]
+    {
+      name: string;
+      age: number;
+      relationship: string;
+      gender: string;
+      id: number;
+    }[]
   >([]);
 
   useEffect(() => {
-    if (famStatus !== "success") return;
-    setFamState(famData.family_members);
-  }, [famData, famStatus]);
+    if (status !== "success") return;
+    setFamState(
+      addAutoIncrementedId(data.family_members.sort((a, b) => a.age - b.age)),
+    );
+  }, [data, status]);
 
-  const update = (data: Record<string, string>) => {
+  const update = (
+    data: Record<string, string | Record<string, string | number>[]>,
+  ) => {
     void updateDoc(ref, data);
   };
 
@@ -79,7 +90,6 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
   return (
     status === "success" && (
       <>
-        {console.log(data)}
         <Modal
           className="z-[100] text-white dark"
           isOpen={isOpen}
@@ -202,11 +212,14 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
                     onSubmit={(values, actions) => {
                       actions.setSubmitting(true);
                       const valToPush = {
-                        family_members: famState,
+                        family_members:
+                          famState && famState.length > 0
+                            ? famState.map(({ id: _, ...rest }) => rest)
+                            : [],
                         ...values,
                       };
                       console.warn(valToPush);
-                      // update(values);
+                      update(valToPush);
                       actions.setSubmitting(false);
                     }}
                   >
@@ -270,51 +283,65 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
                           />
                           {/* <FormField name="family_members" editable={editable} /> */}
                         </div>
-                        {famState.length > 0 && (
+                        {data.family_members.length > 0 && (
                           <div className="flex flex-col items-center rounded-medium border-medium border-default-200 p-1">
                             <p>Family Members</p>
                             <div className="mt-2 flex w-full flex-col gap-2">
-                              {famState
-                                .sort((a, b) => a.age - b.age)
-                                .map((fm, i) => (
-                                  <div
-                                    key={fm.name}
-                                    className="flex w-full flex-row gap-1 rounded-medium border-medium border-default-400 p-1"
+                              {addAutoIncrementedId(
+                                data.family_members.sort(
+                                  (a, b) => a.age - b.age,
+                                ),
+                              ).map((fm, i) => (
+                                <div
+                                  key={fm.name}
+                                  className="flex w-full flex-row items-center gap-1 rounded-medium border-medium border-default-400 p-1"
+                                >
+                                  <FamilyMemberField
+                                    editable={editable || isSubmitting}
+                                    value={fm.name}
+                                    label="name"
+                                    key={`${fm.name}-${i}`}
+                                    setFamState={setFamState}
+                                    id={fm.id}
+                                  />
+                                  <FamilyMemberField
+                                    editable={editable || isSubmitting}
+                                    value={String(fm.age)}
+                                    label="age"
+                                    key={`${fm.age}-${i}`}
+                                    setFamState={setFamState}
+                                    id={fm.id}
+                                  />
+                                  <FamilyMemberField
+                                    editable={editable || isSubmitting}
+                                    value={fm.relationship}
+                                    label="relationship"
+                                    key={`${fm.relationship}-${i}`}
+                                    setFamState={setFamState}
+                                    id={fm.id}
+                                  />
+                                  <FamilyMemberField
+                                    editable={editable || isSubmitting}
+                                    value={fm.gender}
+                                    label="gender"
+                                    key={`${fm.gender}-${i}`}
+                                    setFamState={setFamState}
+                                    id={fm.id}
+                                  />{" "}
+                                  <Button
+                                    color="danger"
+                                    variant="solid"
+                                    isDisabled={!(editable || isSubmitting)}
+                                    onPress={() => {
+                                      setFamState((prev) => ({
+                                        ...prev.filter((a) => a.id !== fm.id),
+                                      }));
+                                    }}
                                   >
-                                    <FamilyMemberField
-                                      editable={editable || isSubmitting}
-                                      value={fm.name}
-                                      label="name"
-                                      key={`${fm.name}-${i}`}
-                                      setFamState={setFamState}
-                                      targetName={fm.name}
-                                    />
-                                    <FamilyMemberField
-                                      editable={editable || isSubmitting}
-                                      value={String(fm.age)}
-                                      label="age"
-                                      key={`${fm.age}-${i}`}
-                                      setFamState={setFamState}
-                                      targetName={fm.name}
-                                    />
-                                    <FamilyMemberField
-                                      editable={editable || isSubmitting}
-                                      value={fm.relationship}
-                                      label="relationship"
-                                      key={`${fm.relationship}-${i}`}
-                                      setFamState={setFamState}
-                                      targetName={fm.name}
-                                    />
-                                    <FamilyMemberField
-                                      editable={editable || isSubmitting}
-                                      value={fm.gender}
-                                      label="gender"
-                                      key={`${fm.gender}-${i}`}
-                                      setFamState={setFamState}
-                                      targetName={fm.name}
-                                    />
-                                  </div>
-                                ))}
+                                    <BsFillTrashFill />
+                                  </Button>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )}
@@ -353,7 +380,7 @@ export const InfoModal: FunctionComponent<InfoModalProps> = ({
                         });
                       }}
                     >
-                      {editable ? "Submit" : "Edit"}
+                      {editable ? "Save" : "Edit"}
                     </Button>
                     <Button
                       color="primary"
@@ -425,10 +452,10 @@ const FamilyMemberField = ({
   editable,
   label,
   value,
-  targetName,
+  id,
   setFamState,
 }: {
-  targetName: string;
+  id: number;
   value: string;
   label: string;
   editable: boolean;
@@ -444,13 +471,13 @@ const FamilyMemberField = ({
   >;
 }) => {
   const updateField = (
-    targetName: string,
+    id: number,
     fieldName: string,
     newValue: string | number,
   ) => {
     setFamState((prevState) => {
       const updatedData = prevState.map((member) => {
-        if (member.name === targetName) {
+        if (member.id === id) {
           return { ...member, [fieldName]: newValue };
         }
         return member;
@@ -468,7 +495,7 @@ const FamilyMemberField = ({
       variant="faded"
       className={label === "gender" ? "w-52" : label === "age" ? "w-22" : ""}
       onInput={(e) => {
-        updateField(value, label, e.currentTarget.value);
+        updateField(id, label, e.currentTarget.value);
       }}
     />
   );

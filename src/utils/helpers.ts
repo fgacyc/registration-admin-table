@@ -92,3 +92,13 @@ export const formatICNumber = (icNumber: string) => {
 
   return icNumber;
 };
+
+export const addAutoIncrementedId = (
+  array: { name: string; relationship: string; age: number; gender: string }[],
+) => {
+  let id = 1;
+  return array.map((item) => ({
+    id: id++,
+    ...item,
+  }));
+};
