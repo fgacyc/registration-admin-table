@@ -156,7 +156,7 @@ const CalculatorPage = () => {
           <p className="w-full text-center text-sm font-bold">Kids</p>
           <div className="flex w-full flex-row justify-center gap-2">
             <div className="flex flex-col items-center justify-center">
-              <p className="mb-1 text-xs">Below 4</p>
+              <p className="mb-1 text-xs">0-3</p>
               <PinInput
                 values={kidsBelow4}
                 onChange={(_value, _index, values) => setKidsBelow4(values)}
