@@ -65,7 +65,7 @@ const CalculatorPage = () => {
     <>
       <Head>
         <title>Calculator | Registration</title>
-        <meta name="description" content="Charts" />
+        <meta name="description" content="Calculator" />
         <link rel="icon" href="/fga.png" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-gradient-to-b from-[#2e026d] to-[#15162c] dark">
